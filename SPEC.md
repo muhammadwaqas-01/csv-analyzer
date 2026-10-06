@@ -1,0 +1,5 @@
+Input: tool kya leta hai? (ek CSV file ka path)
+Output: kya print karta hai? (sochو: rows, columns, har column ki type, khali values, number columns ka min / max / average, text columns ki aam values)
+Usage: command kaisi hogi? (python main.py data/sample.csv)
+Errors handled: kaun si ghaltiyan sambhalta hai? (jaise file na mile, file khali ho)
+Out of scope: jo is project mein nahi hoga (jaise charts, Excel files, kisi database se parhna)
