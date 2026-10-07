@@ -1,5 +1,7 @@
-Input: tool kya leta hai? (ek CSV file ka path)
-Output: kya print karta hai? (sochو: rows, columns, har column ki type, khali values, number columns ka min / max / average, text columns ki aam values)
-Usage: command kaisi hogi? (python main.py data/sample.csv)
-Errors handled: kaun si ghaltiyan sambhalta hai? (jaise file na mile, file khali ho)
-Out of scope: jo is project mein nahi hoga (jaise charts, Excel files, kisi database se parhna)
+# CSV Analyzer: Spec
+
+- Input: A path to a CSV file with a header row.
+- Output: The number of rows and columns, then for each column its type (number or text) and how many values are missing. Number columns also show the minimum, maximum and average. Text columns show how many different values they have and the 3 most common ones.
+- Usage: `python main.py data/sample.csv`
+- Errors handled: File not found, empty file, and a file that has only a header and no data rows.
+- Out of scope: Charts, Excel files, databases, saving the report to a file, and very large files.
