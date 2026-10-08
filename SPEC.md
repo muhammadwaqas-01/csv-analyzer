@@ -1,7 +1,21 @@
 # CSV Analyzer: Spec
 
-- Input: A path to a CSV file with a header row.
-- Output: The number of rows and columns, then for each column its type (number or text) and how many values are missing. Number columns also show the minimum, maximum and average. Text columns show how many different values they have and the 3 most common ones.
+- Input: A path to a CSV file (comma separated, UTF-8, with a header row).
+- Output: A readable report with the number of rows and columns. For each column it shows the type (`number`, `text` or `empty`), how many values are present and how many are missing.
+  - Number columns also show the minimum, maximum and mean.
+  - Text columns also show the number of unique values and the 3 most common ones. Ties keep the order in which the values first appear in the file.
+  - Empty columns (every value missing) show only the missing count.
 - Usage: `python main.py data/sample.csv`
-- Errors handled: File not found, empty file, and a file that has only a header and no data rows.
-- Out of scope: Charts, Excel files, databases, saving the report to a file, and very large files.
+- Cleaning: Spaces around headers and values are removed. Blank cells count as missing. A UTF-8 byte order mark (added by Excel) is accepted. A row with fewer values than headers is accepted and the absent values count as missing.
+- Type detection: Missing values are ignored. A column is `number` if every non-missing value is a finite number, `text` if at least one is not, and `empty` if all are missing. `nan` and `inf` count as text.
+- Errors handled (message on stderr, exit code 1):
+  - the file does not exist
+  - the path cannot be read (for example a folder, or no permission)
+  - the file is empty
+  - the file has a header but no data rows
+  - a row has more values than headers (the message includes the line number)
+  - two columns have the same name
+  - the file is not valid UTF-8 text
+- Exit codes: `0` success, `1` error while reading or analyzing the file, `2` wrong command line usage (for example no path given).
+- Out of scope: Charts, Excel files (`.xlsx`), other separators such as `;` or tabs, databases, saving the report to a file, and very large files (the whole file is read into memory).
+- Known limits: Column types are guessed from the values, so IDs or phone numbers may be treated as numbers.

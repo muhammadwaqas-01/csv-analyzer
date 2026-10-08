@@ -1,66 +1,113 @@
 # CSV Analyzer
 
-A small command line tool that reads a CSV file and describes what is inside it: how many rows and columns it has, what type each column is, and a summary of every column.
+A small command line tool that reads a CSV file and describes what is inside it: how many rows and columns it has, what type each column is, and a summary of every column. It also fails with a clear message instead of a crash when the file is a problem.
 
-> **Status:** work in progress. Built as my Week 1 project while learning Python for AI Engineering.
+> Built as my Week 1 project while learning Python for AI Engineering. It uses only the Python standard library.
 
-## What it does so far
+## Example
 
-- Loads a CSV file and cleans it (removes extra spaces, treats missing values as empty strings).
-- Detects the type of each column: `number`, `text` or `empty`. Missing values are ignored when deciding the type, and `nan` / `inf` are treated as text.
+```
+python main.py data/sample.csv
+```
+
+```
+Rows: 10
+Columns: 4
+
+name (text)
+  Values: 10   Missing: 0
+  Unique: 10
+  Top: Ali (1), Sara (1), Ahmed (1)
+
+age (number)
+  Values: 8   Missing: 2
+  Min: 20   Max: 24   Mean: 22.00
+
+city (text)
+  Values: 9   Missing: 1
+  Unique: 8
+  Top: Lahore (2), Karachi (1), Islamabad (1)
+
+marks (number)
+  Values: 9   Missing: 1
+  Min: 76   Max: 95   Mean: 86.22
+```
+
+## What it does
+
+- Loads a CSV file and cleans it: removes extra spaces, treats blank cells as missing, and accepts the hidden marker Excel adds at the start of a UTF-8 file.
+- Detects the type of each column: `number`, `text` or `empty`. Missing values are ignored, and `nan` / `inf` count as text.
 - Summarizes every column:
-  - number columns: count, missing, min, max, mean
-  - text columns: count, missing, number of unique values, the 3 most common values
-  - empty columns: how many values are missing
-- Gives clear error messages for: a file that does not exist, an empty file, a file with a header but no data rows, and a row that has more values than headers (with the line number).
+  - number: values, missing, min, max, mean
+  - text: values, missing, unique, the 3 most common values (ties keep the order of first appearance)
+  - empty: how many values are missing
+- Reports problems clearly (message on stderr, exit code 1): file not found, a path that cannot be read (such as a folder), an empty file, a header with no data rows, a row with more values than headers (with the line number), duplicate column names, and text that is not valid UTF-8.
+
+## Requirements
+
+Python 3.10 or newer. Running the tool needs no extra packages.
+
+## Usage
+
+```
+git clone https://github.com/muhammadwaqas-01/csv-analyzer.git
+cd csv-analyzer
+python main.py data/sample.csv
+```
+
+| Exit code | Meaning |
+|---|---|
+| 0 | Report printed |
+| 1 | The file could not be read or analyzed |
+| 2 | Wrong usage (for example no path given) |
+
+`python main.py -h` shows the help text.
+
+## Tests
+
+The tests use `pytest` (version 7 or newer).
+
+```
+pip install -r requirements-dev.txt
+python -m pytest -v
+```
+
+Run the command from the project root. There are 29 tests for the loader, column types, summaries, the report and the command line. Tests that need files create them in a temporary folder, so the real data is never changed.
 
 ## Project structure
 
 ```
 csv-analyzer/
   analyzer/
-    loader.py     # load_csv: reads and cleans the file
+    loader.py     # load_csv: reads and validates the file
     columns.py    # detects the type of each column
     summary.py    # summarizes each column
-    report.py     # planned: formatted report output
+    report.py     # turns the summaries into readable text
   data/
     sample.csv    # example data (10 rows, 4 columns, some missing values)
   tests/
-    data/         # small CSV files used to try edge cases
-  main.py         # demo entry point
-  SPEC.md         # what the tool should do and not do
+    data/         # small CSV files for trying edge cases by hand
+    test_*.py     # automated tests
+  main.py         # command line entry point
+  SPEC.md         # what the tool does and does not do
+  pytest.ini
+  requirements-dev.txt
 ```
 
-## How to run
+## Design notes
 
-You need Python 3.9 or newer. There are no external packages.
+- `loader.py`, `columns.py` and `summary.py` only compute; they never print. They raise errors, and `main.py` decides what to show.
+- `report.py` returns a string, so the report can be tested without capturing output.
+- `main()` returns an exit code and `sys.exit(main())` sits at the bottom, so tests can call `main([...])` directly.
 
-```
-git clone https://github.com/muhammadwaqas-01/csv-analyzer.git
-cd csv-analyzer
-python main.py
-```
-
-## Example output
-
-Running it on `data/sample.csv`:
-
-```
-Overview: {'rows': 10, 'columns': 4}
-name {'count': 10, 'missing': 0, 'unique': 10, 'top': [('Ali', 1), ('Sara', 1), ('Ahmed', 1)], 'type': 'text'}
-age {'count': 8, 'missing': 2, 'min': 20.0, 'max': 24.0, 'mean': 22.0, 'type': 'number'}
-city {'count': 9, 'missing': 1, 'unique': 8, 'top': [('Lahore', 2), ('Karachi', 1), ('Islamabad', 1)], 'type': 'text'}
-marks {'count': 9, 'missing': 1, 'min': 76.0, 'max': 95.0, 'mean': 86.22, 'type': 'number'}
-```
-
-## Known limitations
+## Limitations
 
 - Column types are guessed from the values, so IDs or phone numbers may be treated as numbers.
-- Two columns with the same name are not handled yet.
+- Only comma separated files are supported.
 - The whole file is read into memory, so it is not meant for very large files.
 
-## Planned
+## Ideas for later
 
-- A readable report instead of raw dictionaries (`report.py`)
-- Pass the file path on the command line
-- Automated tests for the edge cases in `tests/data/`
+- A choice of separator for files that use `;` or tabs
+- More column types, such as dates
+- Saving the report to a file
