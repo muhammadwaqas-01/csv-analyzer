@@ -1,0 +1,7 @@
+id,decimals,mixed,blank,tricky
+1,8.5,10,,nan
+2,-3,20,,inf
+3,1e3,30,,nan
+4,12.75,abc,,
+5,0,50,,
+6,-7.5,60,,

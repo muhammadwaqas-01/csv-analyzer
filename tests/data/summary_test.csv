@@ -1,0 +1,16 @@
+id,decimals,mixed,blank,tricky,tie_words,same_city
+1,8.5,10,,nan,b,Lahore
+2,-3,20,,inf,a,Lahore
+3,1000,30,,nan,b,Lahore
+4,12.75,abc,,,a,Lahore
+5,0,50,,,c,Lahore
+6,-7.5,60,,,c,Lahore
+7,250.5,abc,,,b,Lahore
+8,99.99,70,,,a,Lahore
+9,-12.25,abc,,,b,Lahore
+10,450.75,80,,,a,Lahore
+11,3.14,abc,,,c,Lahore
+12,200.5,90,,,b,Lahore
+13,-5.5,abc,,,a,Lahore
+14,10.25,100,,,c,Lahore
+15,5.5,abc,,,b,Lahore
